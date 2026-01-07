@@ -58,6 +58,23 @@ shadow.innerHTML = `
 </script>
 ```
 
+## Wexoes utility-klasser (finns redan på sajten)
+
+Lägg på section i Avia Builder:
+```
+.tight-section        /* padding: 0 */
+.mid-tight-section    /* padding: 20px */
+.mid-section          /* padding: 50px */
+.mid-loose-section    /* padding: 75px */
+```
+
+Mobile-only (aktiveras under 767px):
+```
+.mobile-tight-section
+.mobile-small-section   /* 25px */
+.mobile-medium-section  /* 40px */
+```
+
 ## Var läggs koden?
 - **CSS:** Enfold → Quick CSS eller WordPress Customizer → Ytterligare CSS
 - **JavaScript:** Enfold → Theme Options → Footer scripts
