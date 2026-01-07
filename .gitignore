@@ -1,0 +1,20 @@
+# OS files
+.DS_Store
+Thumbs.db
+
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# Node (om du kör något build-steg)
+node_modules/
+
+# Temporary files
+*.tmp
+*.bak
+
+# Large CSS dumps (ladda ner lokalt, pusha inte massiva filer)
+# Kommentera bort om du vill versionshantera dumps
+# theme-reference/css/full-dump*.css
