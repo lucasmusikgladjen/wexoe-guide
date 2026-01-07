@@ -1,0 +1,212 @@
+/* ================================
+   CUSTOM ZONE - Enfold CSS Isolation
+   ================================
+   
+   Användning:
+   <div class="custom-zone">
+     Din HTML här, fri från Enfold-styling
+   </div>
+   
+   ================================ */
+
+/* === RESET === */
+.custom-zone,
+.custom-zone *,
+.custom-zone *::before,
+.custom-zone *::after {
+  all: revert;
+  box-sizing: border-box;
+}
+
+/* Döda Enfolds list-ikoner explicit */
+.custom-zone li::before {
+  content: none !important;
+  display: none !important;
+}
+
+/* === BAS-STYLING === */
+.custom-zone {
+  font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;
+  font-size: 16px;
+  line-height: 1.6;
+  color: #1a1a1a;
+}
+
+/* === TYPOGRAFI === */
+.custom-zone h1 {
+  font-size: 2.5rem;
+  font-weight: 700;
+  line-height: 1.2;
+  margin-bottom: 1rem;
+}
+
+.custom-zone h2 {
+  font-size: 2rem;
+  font-weight: 700;
+  line-height: 1.25;
+  margin-bottom: 1rem;
+}
+
+.custom-zone h3 {
+  font-size: 1.5rem;
+  font-weight: 600;
+  line-height: 1.3;
+  margin-bottom: 0.75rem;
+}
+
+.custom-zone h4 {
+  font-size: 1.25rem;
+  font-weight: 600;
+  line-height: 1.4;
+  margin-bottom: 0.5rem;
+}
+
+.custom-zone p {
+  margin-bottom: 1em;
+}
+
+.custom-zone strong {
+  font-weight: 600;
+}
+
+.custom-zone em {
+  font-style: italic;
+}
+
+/* === LISTOR === */
+.custom-zone ul,
+.custom-zone ol {
+  padding-left: 2em !important;
+  margin: 1em 0 !important;
+}
+
+.custom-zone ul {
+  list-style-type: disc !important;
+}
+
+.custom-zone ol {
+  list-style-type: decimal !important;
+}
+
+.custom-zone li {
+  margin: 0.5em 0 !important;
+  list-style: inherit !important;
+  padding-left: 0 !important;
+}
+
+.custom-zone ul ul {
+  list-style-type: circle !important;
+}
+
+.custom-zone ul ul ul {
+  list-style-type: square !important;
+}
+
+/* === LÄNKAR === */
+.custom-zone a {
+  color: #0066cc;
+  text-decoration: underline;
+  transition: color 0.2s ease;
+}
+
+.custom-zone a:hover {
+  color: #004499;
+}
+
+.custom-zone a:visited {
+  color: #551a8b;
+}
+
+/* === BILDER === */
+.custom-zone img {
+  max-width: 100%;
+  height: auto;
+  display: block;
+}
+
+/* === KNAPPAR === */
+.custom-zone .btn {
+  display: inline-block;
+  padding: 0.75em 1.5em;
+  font-size: 1rem;
+  font-weight: 500;
+  text-decoration: none;
+  border-radius: 4px;
+  border: none;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.custom-zone .btn-primary {
+  background-color: #0066cc;
+  color: white;
+}
+
+.custom-zone .btn-primary:hover {
+  background-color: #0055aa;
+  color: white;
+}
+
+.custom-zone .btn-secondary {
+  background-color: #f0f0f0;
+  color: #333;
+}
+
+.custom-zone .btn-secondary:hover {
+  background-color: #e0e0e0;
+}
+
+/* === CARDS === */
+.custom-zone .card {
+  background: white;
+  border-radius: 8px;
+  padding: 1.5rem;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.custom-zone .card-title {
+  font-size: 1.25rem;
+  font-weight: 600;
+  margin-bottom: 0.5rem;
+}
+
+/* === FORM ELEMENTS === */
+.custom-zone input,
+.custom-zone textarea,
+.custom-zone select {
+  font-family: inherit;
+  font-size: 1rem;
+  padding: 0.5em 0.75em;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  width: 100%;
+}
+
+.custom-zone input:focus,
+.custom-zone textarea:focus,
+.custom-zone select:focus {
+  outline: none;
+  border-color: #0066cc;
+  box-shadow: 0 0 0 3px rgba(0, 102, 204, 0.1);
+}
+
+.custom-zone label {
+  display: block;
+  font-weight: 500;
+  margin-bottom: 0.25em;
+}
+
+/* === UTILITIES === */
+.custom-zone .text-center { text-align: center; }
+.custom-zone .text-left { text-align: left; }
+.custom-zone .text-right { text-align: right; }
+
+.custom-zone .mt-1 { margin-top: 0.5rem; }
+.custom-zone .mt-2 { margin-top: 1rem; }
+.custom-zone .mt-3 { margin-top: 1.5rem; }
+.custom-zone .mt-4 { margin-top: 2rem; }
+
+.custom-zone .mb-1 { margin-bottom: 0.5rem; }
+.custom-zone .mb-2 { margin-bottom: 1rem; }
+.custom-zone .mb-3 { margin-bottom: 1.5rem; }
+.custom-zone .mb-4 { margin-bottom: 2rem; }
