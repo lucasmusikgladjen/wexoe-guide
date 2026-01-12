@@ -2,7 +2,7 @@
 
 > Dokumentation för custom WordPress-plugins skapade för wexoe.se
 
-**Senast uppdaterad:** 2026-01-09
+**Senast uppdaterad:** 2026-01-12
 
 ---
 
@@ -15,6 +15,10 @@
 | Wexoe Product Cards | `[wexoe_product_cards]` | Produktkort från Airtable | 1.0.2 |
 | Wexoe Hero Automation | `[wexoe_hero_automation]` | Hero-sektion med diagonal bildklippning | 1.0.7 |
 | Wexoe Product Nav | `[wexoe_product_nav]` | Produktnavigation med event & kampanj | 1.0.6 |
+| Wexoe Team Rack | `[wexoe_team_rack]` | Teammedlemmar i Allen-Bradley PLC-rack tema | 1.1.2 |
+| Wexoe Team Switch | `[wexoe_team_switch]` | Teammedlemmar i managed switch-tema | 1.0.0 |
+| Wexoe Team Cabinet | `[wexoe_team_cabinet]` | Teammedlemmar i serverrack/datacenter-tema | 1.0.0 |
+| Wexoe Contact Form | `[wexoe_contact_form]` | Konverteringsoptimerat kontaktformulär | 1.3.0 |
 
 ---
 
@@ -387,6 +391,301 @@ Pluginet är konfigurerat för:
 
 ---
 
+## Wexoe Team Rack
+
+**Shortcode:** `[wexoe_team_rack]`
+
+**Beskrivning:** Visar teammedlemmar i ett industriellt CompactLogix PLC-rack tema med Allen-Bradley styling. Hämtar data från Airtable.
+
+### Användning
+
+```
+[wexoe_team_rack]
+```
+
+### Med parametrar
+
+```
+[wexoe_team_rack tag="Automation" title="Vårt automationsteam" subtitle="Experter på Rockwell"]
+```
+
+### Debug-läge
+
+```
+[wexoe_team_rack debug="true"]
+```
+
+Visar API-svar och fältnamn.
+
+### Parametrar
+
+| Parameter | Default | Beskrivning |
+|-----------|---------|-------------|
+| `tag` | *(tom)* | Filtrera på specifik tag från Airtable |
+| `title` | *(tom)* | Rubrik ovanför racket |
+| `subtitle` | *(tom)* | Underrubrik |
+| `debug` | `false` | Visa debug-info (API-svar, fältnamn) |
+
+### Airtable-fält
+
+| Fält | Beskrivning |
+|------|-------------|
+| `Name` | Personens namn |
+| `Title` | Jobbtitel |
+| `Image` | Profilbild (URL från Airtable attachment) |
+| `Email` | E-postadress |
+| `Phone` | Telefonnummer |
+| `Tags` | För filtrering |
+| `Responsibility` | Avgör modul-ID (OEM, Systemintegratörer, etc.) |
+| `Module name` | Text som visas på modulens tab |
+| `Visa` | Checkbox - måste vara TRUE för att visas |
+| `Order` | Sorteringsordning (lägst först) |
+
+### Modul-ID mappning
+
+| Responsibility | Modul-ID |
+|---------------|----------|
+| OEM | 1769-OEM |
+| Systemintegratörer | 1769-SI |
+| Slutanvändare | 1769-END |
+| *(standard)* | 1769-IO |
+
+---
+
+## Wexoe Team Switch
+
+**Shortcode:** `[wexoe_team_switch]`
+
+**Beskrivning:** Visar teammedlemmar i ett managed network switch-tema med mörk cyberpunk-estetik. Hämtar data från samma Airtable som Team Rack.
+
+### Användning
+
+```
+[wexoe_team_switch]
+```
+
+### Med parametrar
+
+```
+[wexoe_team_switch tag="Nätverk" title="Nätverksteamet" subtitle="Experter på IT-infrastruktur"]
+```
+
+### Parametrar
+
+| Parameter | Default | Beskrivning |
+|-----------|---------|-------------|
+| `tag` | *(tom)* | Filtrera på specifik tag från Airtable |
+| `title` | *(tom)* | Rubrik ovanför switchen |
+| `subtitle` | *(tom)* | Underrubrik |
+| `debug` | `false` | Visa debug-info |
+
+### Design
+
+- **Färgschema:** Mörk bakgrund (#0a0a0a till #1a1a2e) med cyan accenter (#00d4aa)
+- **Status-LEDs:** PWR, SYS, ACT, STACK, LINK
+- **Port-moduler:** Varje teammedlem visas som en switch-port
+- **Port-typer:** SFP+, 10GbE, GbE, QSFP (baserat på Responsibility-fält)
+- **Animationer:** Blinkande aktivitets-LEDs, hover-effekter
+
+### Port-typ mappning
+
+| Responsibility | Port-typ |
+|---------------|----------|
+| OEM | SFP+ |
+| Systemintegratörer | 10GbE |
+| Slutanvändare | GbE |
+| IT Infra | QSFP |
+| Nätverk | SFP28 |
+| *(standard)* | GbE |
+
+### Jämförelse: Team Rack vs Team Switch
+
+| Feature | Team Rack | Team Switch |
+|---------|-----------|-------------|
+| Tema | Industriellt PLC | Managed Switch |
+| Färger | Allen-Bradley grå/orange | Mörk cyberpunk cyan |
+| Layout | Horisontella moduler | Grid med port-kort |
+| Bäst för | Automation-team | IT/Nätverks-team |
+
+---
+
+## Wexoe Team Cabinet
+
+**Shortcode:** `[wexoe_team_cabinet]`
+
+**Beskrivning:** Visar teammedlemmar i ett serverrack/datacenter-tema med patchpaneler, switchar och server blades. Hämtar data från samma Airtable som övriga team-plugins.
+
+### Användning
+
+```
+[wexoe_team_cabinet]
+```
+
+### Med parametrar
+
+```
+[wexoe_team_cabinet tag="Nätverk" title="Nätverksteamet" subtitle="IT-infrastruktur & Datacenter"]
+```
+
+### Parametrar
+
+| Parameter | Default | Beskrivning |
+|-----------|---------|-------------|
+| `tag` | *(tom)* | Filtrera på specifik tag från Airtable |
+| `title` | *(tom)* | Rubrik ovanför racket |
+| `subtitle` | *(tom)* | Underrubrik |
+| `debug` | `false` | Visa debug-info |
+
+### Design
+
+- **Färgschema:** Mörk datacenter-estetik (#0a0a0a till #111)
+- **Rack-ram:** Vertikala rack rails med skruvhål
+- **Patchpanel:** CAT6A med färgkodade kablar (blå, grön, röd, gul)
+- **TRENDnet Switch:** Med blinkande port-LEDs
+- **Server Blades:** 2U-moduler med LED-panel (Power/HDD/NIC), drive bays
+- **PDU:** I botten med uttag och load-stats
+- **Bakgrundskablar:** Subtila SVG-kurvor för djup
+
+### Airtable-fält
+
+| Fält | Beskrivning |
+|------|-------------|
+| `Name` | Personens namn |
+| `Title` | Jobbtitel |
+| `Image` | URL till bild i WordPress (eller Airtable attachment) |
+| `Email` | E-postadress (visas som text) |
+| `Phone` | Telefonnummer (visas som text, formateras automatiskt) |
+| `Tags` | För filtrering |
+| `Visa` | Checkbox - måste vara TRUE för att visas |
+| `Order` | Sorteringsordning (lägst först) |
+
+### Kontaktinfo
+
+Till skillnad från Team Rack visas e-post och telefonnummer som klickbar text:
+- 📧 email@wexoe.se
+- 📞 +46 70 123 45 67
+
+### Jämförelse: Team Rack vs Team Cabinet
+
+| Feature | Team Rack | Team Cabinet |
+|---------|-----------|--------------|
+| Tema | PLC/Automation | Datacenter/Server |
+| Färger | Allen-Bradley grå/orange | Mörk med blå accenter |
+| Layout | Horisontella I/O-moduler | Vertikalt rack med blades |
+| Kontaktinfo | Endast ikoner | Text + ikoner |
+| Bäst för | Automation-team | IT/Nätverks-team |
+
+---
+
+## Wexoe Contact Form
+
+**Shortcode:** `[wexoe_contact_form]`
+
+**Beskrivning:** Konverteringsoptimerat kontaktformulär med mörkblå/vit design. Skickar data till Make.com webhook.
+
+### Användning
+
+**Standard (mörkblå bakgrund):**
+```
+[wexoe_contact_form]
+```
+
+**Inverterad (vit bakgrund):**
+```
+[wexoe_contact_form inverted="true"]
+```
+
+### Helt anpassad
+
+```
+[wexoe_contact_form
+  title="Kontakta nätverksteamet"
+  subtitle="Vi hjälper dig med switches och infrastruktur"
+  inverted="true"
+  trust1="Cisco-certifierade|nätverkstekniker"
+  trust2="Snabb leverans|från lager i Köpenhamn"
+  trust3="Support samma dag|vi finns här för dig"
+  options="Nätverksdesign,Switch-konfiguration,Felsökning,Offert,Övrigt"
+]
+```
+
+**Utan trust signals:**
+```
+[wexoe_contact_form trust1="" trust2="" trust3=""]
+```
+
+### Parametrar
+
+| Parameter | Default | Beskrivning |
+|-----------|---------|-------------|
+| `title` | "Prata med någon som kan automation" | Huvudrubrik |
+| `subtitle` | *(tom)* | Underrubrik (visas ej om tom) |
+| `inverted` | `false` | `true` = vit bakgrund, mörkblå text |
+| `trust1` | "30+ års erfarenhet\|av Rockwell och svensk industri" | Första trust signal |
+| `trust2` | "Vi säljer inte bara produkter\|vi löser problem" | Andra trust signal |
+| `trust3` | "Lager i Köpenhamn\|snabb leverans när det krisar" | Tredje trust signal |
+| `options` | "Generell fråga,Diskutera ett projekt,..." | Dropdown-alternativ |
+
+### Trust signals format
+
+Använd `|` för att separera **fetstil** och vanlig text:
+
+```
+trust1="Fetstilad del|resten av texten"
+```
+
+Resultat: **Fetstilad del** resten av texten
+
+### Dropdown-alternativ format
+
+Kommaseparerad lista. Values genereras automatiskt från labels:
+
+```
+options="Teknisk support,Offertförfrågan,Övrigt"
+```
+
+Genererar:
+- teknisk-support → "Teknisk support"
+- offertforfragan → "Offertförfrågan"
+- ovrigt → "Övrigt"
+
+### Formulärfält
+
+Alla fält utom "Berätta mer" är obligatoriska:
+- Namn *
+- Företag *
+- E-post *
+- Telefon *
+- Vad kan vi hjälpa dig med? (dropdown)
+- Berätta mer (valfritt)
+- GDPR-checkbox för marknadskommunikation
+
+### Webhook-data
+
+Skickas som JSON till Make.com:
+
+```json
+{
+  "namn": "...",
+  "foretag": "...",
+  "telefon": "...",
+  "epost": "...",
+  "behov": "teknisk-support",
+  "meddelande": "...",
+  "gdpr_consent": true,
+  "submitted_at": "2026-01-12 10:30:00",
+  "page_url": "https://wexoe.se/kontakt/",
+  "user_agent": "..."
+}
+```
+
+### Responsiv design
+
+- **Desktop (>800px):** Två kolumner - trust signals till vänster, formulär till höger
+- **Mobil (<800px):** En kolumn - endast rubrik och formulär (trust signals döljs)
+
+---
+
 ## Designsystem
 
 ### Färger
@@ -488,6 +787,31 @@ Alla plugins anpassar sig automatiskt.
 | 1.0.1 | 2026-01-08 | Debug-läge tillagt |
 | 1.0.0 | 2026-01-08 | Initial release |
 
+### Wexoe Team Rack
+| Version | Datum | Ändringar |
+|---------|-------|-----------|
+| 1.1.2 | - | Mobil centrering, full-width bakgrund |
+
+### Wexoe Team Switch
+| Version | Datum | Ändringar |
+|---------|-------|-----------|
+| 1.0.0 | - | Initial release |
+
+### Wexoe Team Cabinet
+| Version | Datum | Ändringar |
+|---------|-------|-----------|
+| 1.0.0 | - | Initial release |
+
+### Wexoe Contact Form
+| Version | Datum | Ändringar |
+|---------|-------|-----------|
+| 1.3.0 | - | Redigerbara trust signals och dropdown-alternativ |
+| 1.2.2 | - | Uppdaterad bekräftelsetext och telefonnummer |
+| 1.2.1 | - | Fältjustering, vit inverterad bakgrund |
+| 1.2.0 | - | Inverted mode |
+| 1.1.4 | - | Mobilbredd och knappfix |
+| 1.1.0 | - | Initial release |
+
 ---
 
 ## Filer
@@ -504,8 +828,16 @@ plugins/
 │   └── wexoe-product-cards.php
 ├── wexoe-hero-automation/
 │   └── wexoe-hero-automation.php
-└── wexoe-product-nav/
-    └── wexoe-product-nav.php
+├── wexoe-product-nav/
+│   └── wexoe-product-nav.php
+├── wexoe-team-rack/
+│   └── wexoe-team-rack.php
+├── wexoe-team-switch/
+│   └── wexoe-team-switch.php
+├── wexoe-team-cabinet/
+│   └── wexoe-team-cabinet.php
+└── wexoe-contact-form/
+    └── wexoe-contact-form.php
 ```
 
 ---
