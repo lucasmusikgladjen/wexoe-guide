@@ -2,7 +2,7 @@
 
 > Dokumentation för custom WordPress-plugins skapade för wexoe.se
 
-**Senast uppdaterad:** 2026-01-12
+**Senast uppdaterad:** 2026-03-10
 
 ---
 
@@ -19,6 +19,8 @@
 | Wexoe Team Switch | `[wexoe_team_switch]` | Teammedlemmar i managed switch-tema | 1.0.0 |
 | Wexoe Team Cabinet | `[wexoe_team_cabinet]` | Teammedlemmar i serverrack/datacenter-tema | 1.0.0 |
 | Wexoe Contact Form | `[wexoe_contact_form]` | Konverteringsoptimerat kontaktformulär | 1.3.0 |
+| Wexoe Product Area | `[wexoe_product_area]` | Produktområdesida med sidomeny, artikelkort, varianter, prisförfrågan | 2.1.3 |
+| Wexoe Order Page | `[wexoe_order]` | Fristående beställningssida med tvånivå-meny, alla produktområden, prisförfrågan | 1.0.0 |
 
 ---
 
@@ -27,6 +29,351 @@
 1. Ladda upp `.zip`-filen via **Plugins → Lägg till ny → Ladda upp plugin**
 2. Aktivera pluginet
 3. Använd shortcoden i valfri sida/post eller Enfold-element
+
+> **OBS:** Wexoe Product Area och Wexoe Order Page kan köras samtidigt. Delade funktioner, konstanter och AJAX-handlers är skyddade med `function_exists()` och `defined()` guards.
+
+---
+
+## Wexoe Product Area
+
+**Shortcode:** `[wexoe_product_area]`
+
+**Beskrivning:** Renderar en komplett produktområdesida driven av Airtable-data. Stöder sidomeny med produkter, artikelkort med varianter, horisontella/vertikala layouts, NPI hero-kort, toggle-sektioner, solutions-grid, och ett inbyggt prisförfrågan-formulär med kundprisstöd.
+
+### Användning
+
+```
+[wexoe_product_area slug="fiberkabel-fran-fibrain"]
+```
+
+### Debug-läge
+
+```
+[wexoe_product_area slug="fiberkabel-fran-fibrain" debug="true" nocache="true"]
+```
+
+### Parametrar
+
+| Parameter | Default | Beskrivning |
+|-----------|---------|-------------|
+| `slug` | *(obligatorisk)* | Slug från Product Areas-tabellen i Airtable |
+| `debug` | `false` | Visa debug-information (API-svar, fältdata) |
+| `nocache` | `false` | Rensa alla `wexoe_pa_*` transients vid laddning |
+
+### Airtable-tabeller
+
+**Base ID:** `appXoUcK68dQwASjF`
+
+#### Product Areas
+
+| Fält | Typ | Beskrivning |
+|------|-----|-------------|
+| `Slug` | Single line text | URL-vänligt namn, matchar shortcode-parametern |
+| `H1` | Single line text | Sidans huvudrubrik |
+| `Hero Description` | Long text | Beskrivning under H1 |
+| `Hero Image` | URL | Bild i hero-sektionen |
+| `Hero Button 1/2 Text` | Single line text | CTA-knappar |
+| `Hero Button 1/2 URL` | URL | Länkdestination |
+| `Products` | Linked records | Kopplade produkter (Products-tabell) |
+| `Solutions` | Linked records | Kopplade lösningar (Solutions & Concepts) |
+| `Side menu` | Checkbox | Aktiverar sidomenyn-läge |
+| `Request` | Checkbox | Aktiverar prisförfrågan-formuläret |
+| `Toggle BG` | Single line text | Hex-färg för toggle-bakgrund |
+| `Toggle Accent` | Single line text | Hex-färg för toggle-accent |
+
+#### Products
+
+| Fält | Typ | Beskrivning |
+|------|-----|-------------|
+| `Name` | Single line text | Produktnamn |
+| `Description` | Long text | Produktbeskrivning (stöder markdown) |
+| `Ecosystem Description` | Long text | Eko-systembeskrivning |
+| `Bullets` | Long text | En punkt per rad, visas med checkmarks |
+| `Image` | URL | Produktbild |
+| `Button 1/2 Text` | Single line text | Knappar under beskrivning |
+| `Button 1/2 URL` | URL | Länkdestination |
+| `Order` | Number | Sorteringsordning |
+| `Visa` | Checkbox | Måste vara TRUE för att visas |
+| `Articles` | Linked records | Kopplade artiklar (Articles-tabell) |
+| `Header side menu` | Single line text | Överskriver Name som H2 i sidomenyn |
+| `Horizontal` | Checkbox | Artikelkort visas horisontellt istället för vertikalt |
+
+#### Articles
+
+| Fält | Typ | Beskrivning |
+|------|-----|-------------|
+| `Name` | Single line text | Artikelnamn |
+| `Artikelnummer` | Single line text | Artikelnummer (ex. 79.74.003.725) |
+| `Datablad` | URL | Länk till datablad |
+| `Länk till webshop` | URL | Webshop-länk |
+| `Bild` | URL | Produktbild |
+| `Description` | Single line text | Kort beskrivning |
+| `Varianter` | Long text | Variantdefinitioner (se Variantsystem nedan) |
+
+#### Customers
+
+| Fält | Typ | Beskrivning |
+|------|-----|-------------|
+| `Customer ID` | Single line text | Unikt kund-ID (ex. K-20250301) |
+| `Name` | Single line text | Kundnamn |
+| `Prices` | Long text | Prislista (se Kundpriser nedan) |
+
+### Variantsystem
+
+Varianter definieras i fältet `Varianter` (long text) på Articles-tabellen:
+
+```
+@Typ: 12F Ø 5.9mm, 24F Ø 7mm, 48F Ø 7.9mm
+@Längd: Per meter, 300m, 500m, 1km
+12F Ø 5.9mm/Per meter = 79.74.003.725
+12F Ø 5.9mm/300m = 79.74.001.989
+48F Ø 7.9mm/Per meter = 79.74.002.522
+```
+
+**Format:**
+- `@DimName: opt1, opt2, opt3` — definierar en dimension med alternativ
+- `val1/val2 = ARTNR` — mappar kombinationer till artikelnummer
+- Separator mellan dimensionsvärden: `/`
+
+**Funktionalitet:**
+- Cascading filter: att välja ett alternativ i en dimension filtrerar tillgängliga alternativ i andra dimensioner
+- Artikelnummer uppdateras live vid variantbyte
+- Fungerar i artikelkort och i prisförfrågan-formulärets rader
+
+### Kundpriser
+
+Befintliga kunder kan se avtalade priser genom att ange sitt kund-ID.
+
+**Prisformat i Airtable (Prices-fältet, long text):**
+
+```
+79.74.003.725 = 45.50
+79.74.001.989 = 42.00
+79.74.008.827 = 38.75
+```
+
+En rad per artikelnummer. Stöder upp till ~5 000 prisrader i ett Airtable long text-fält.
+
+**Flödet:**
+
+1. Kunden klickar "Har du ett kund-ID?" (diskret länk bredvid subtitlen)
+2. Input + "Hämta priser"-knapp visas (ersätter länken)
+3. AJAX-anrop hämtar prisdata från Customers-tabellen
+4. Statusmeddelande: "✓ Priser laddade för [Kundnamn]"
+5. Tre nya kolumner visas i artikeltabellen: Pris, Antal, Summa
+6. Totalrad längst ner beräknas live
+7. Knappen ändras till "Skicka orderförfrågan"
+8. Artiklar utan pris i avtal visar "Ej i avtal"
+
+### Sidomeny-läge
+
+Aktiveras via `Side menu` checkbox i Product Areas.
+
+**Desktop:** Fast sidebar (220px) till vänster med produktnamn, orange aktiv-indikator. Klick byter content-panel.
+
+**Mobil:** Sidebar ersätts av `<select>` dropdown.
+
+### Horisontella artikelkort
+
+Aktiveras via `Horizontal` checkbox på Products-tabellen.
+
+Layout per kort: bild till vänster (110px), namn, variant-dropdowns (aldrig stacking), artikelnummer (högerställt), knappar.
+
+### Request-formulär
+
+Aktiveras via `Request` checkbox i Product Areas. Döljer automatiskt `#kontakt`-sektionen på sidan.
+
+**Fält:** Namn, Företag, Telefon, E-post (4-kolumns grid)
+
+**Artikeltabell:**
+- Artiklar läggs till via "Lägg till i förfrågan"-knapp på korten
+- Eller via "+ Lägg till artikel" sökfunktion i tabellen
+- Variantväljare i varje rad (cascading)
+- Antal-fält utan pil-spinners
+- Pris/Summa-kolumner (dolda tills kundpriser laddas)
+
+**Webhook-data (Make.com):**
+
+```json
+{
+  "namn": "...",
+  "foretag": "...",
+  "telefon": "...",
+  "epost": "...",
+  "behov": "prisforfragan",
+  "customer_id": "K-20250301",
+  "meddelande": "...",
+  "gdpr_consent": true,
+  "artiklar": [
+    {"namn": "Blåsfiber EXO-D0", "artikelnummer": "79.74.003.725", "variant": "12F Ø 5.9mm / Per meter", "antal": "500", "pris": "45.50"}
+  ],
+  "submitted_at": "2026-03-10 14:30:00",
+  "page_url": "https://wexoe.se/fiber/fiberkabel-fran-fibrain/",
+  "user_agent": "..."
+}
+```
+
+`behov` sätts till `"orderforfragan"` om kund-ID är ifyllt, annars `"prisforfragan"`.
+
+### Design
+
+| Token | Värde |
+|-------|-------|
+| Primär (mörk) | `#11325D` |
+| Accent/CTA | `#F28C28` |
+| Toggle-bakgrund | `#11325D` (default, överskrivs via Airtable) |
+| Text i sidomeny | `#FFFFFF` (full), `rgba(255,255,255,0.85)` (inaktiv) |
+| Request-formulär bakgrund | `#F8F9FA` |
+| Font | DM Sans |
+
+### Versionshistorik
+
+| Version | Ändringar |
+|---------|-----------|
+| 2.1.3 | Alla delade funktioner/konstanter wrappade med `function_exists`/`defined` guards — kompatibilitet med Order Page |
+| 2.1.2 | Summa-kolumn centrerad |
+| 2.1.1 | Kompaktare artikeltabell (smalare antal/kryss, nowrap varianter), decimaler borta på radnivå |
+| 2.1.0 | Fast min-width på orderknapp, dold number-spinner, mer padding antal→summa |
+| 2.0.9 | Kompaktare tabell: smalare kolumner, nowrap varianter, 42px antal |
+| 2.0.8 | Statusmeddelande ovanför kund-ID input |
+| 2.0.7 | Kund-ID som inline swap: klick döljer trigger, visar input+knapp |
+| 2.0.6 | Kund-ID popup ovanför trigger (absolute positioned) |
+| 2.0.5 | "Skicka prisförfrågan" → "Skicka orderförfrågan" vid kundpriser |
+| 2.0.4 | Kund-ID uppe till höger bredvid subtitle, högerställd popup |
+| 2.0.3 | Fixad #kontakt-döljning (bara elementet, ej parent) |
+| 2.0.2 | Bildhöjd fixad (horisontella kort), img padding borttagen |
+| 2.0.1 | #kontakt defer-fix, form 1000px, kund-ID toggle, subtitle borttagen, total+add samma rad |
+| 2.0.0 | Kundprislista-system: Customers-tabell, AJAX-lookup, pris/summa-kolumner, total |
+| 1.6.x | NPI badge "NYHET", horisontella artikelkort (Horizontal-checkbox), #kontakt döljning |
+| 1.5.x | Request-formulär (AJAX, webhook, GDPR), UX-polish |
+| 1.4.0 | Request-formulär implementation |
+| 1.3.x | Variantsystem (parser, cascading, formulärrad-varianter), nocache full clear |
+| 1.2.x | Artikelkort redesign (vit bild-bg, knappar, Beställ/Datablad) |
+| 1.1.x | Sidomenyn implementation, Articles-hämtning |
+
+---
+
+## Wexoe Order Page
+
+**Shortcode:** `[wexoe_order]`
+
+**Beskrivning:** Fristående beställningssida som samlar alla produktområden med sidomeny i en tvånivåstruktur. Stöder dark och light mode. Inkluderar samma artikelkort, varianter, kundpriser och prisförfrågan som Product Area.
+
+### Användning
+
+```
+[wexoe_order]
+```
+
+### Med parametrar
+
+```
+[wexoe_order areas="fiber,kablar" mode="light" debug="true" nocache="true"]
+```
+
+### Parametrar
+
+| Parameter | Default | Beskrivning |
+|-----------|---------|-------------|
+| `areas` | *(tom = alla)* | Kommaseparerade slugs — filtrerar vilka Product Areas som visas |
+| `mode` | `dark` | `dark` = mörkblå bakgrund, `light` = vit bakgrund |
+| `debug` | `false` | Visa debug-information |
+| `nocache` | `false` | Rensa alla `wexoe_op_*` transients |
+
+### Datahämtning
+
+Pluginet hämtar automatiskt alla Product Areas där `Side menu = TRUE()`. Om `areas`-parametern anges filtreras resultatet på matchande slugs.
+
+Per area hämtas alla kopplade Products (sorterade efter Order, filtrerade på Visa = TRUE), och per produkt hämtas alla kopplade Articles.
+
+### Sidomenyn — tvånivåstruktur
+
+```
+▸ Fiberkabel från Fibrain     ← Product Area (grupp-header)
+    Installationskabel          ← Product (klickbar item)
+    Skarvning
+    Adaptrar
+    Pigtails
+▾ Skarvboxar                   ← Expanderad grupp
+    Skarvbox Indoor
+    Skarvbox Outdoor
+```
+
+**Nivå 1 (grupp-headers):** Varje Product Area med `Side menu = true` visas som en klickbar rubrik med chevron. Klick expanderar/kollapsar listan.
+
+**Nivå 2 (items):** Produkterna kopplade till arean. Klick byter content-panelen till höger.
+
+**Desktop:** Fast sidebar (220px) till vänster.
+
+**Mobil (<768px):** Sidebar döljs, ersätts av `<select>` dropdown med format "Area — Produkt".
+
+### Content-panel
+
+Vid klick på en produkt i sidomenyn visas:
+
+1. **H2** — från `Header side menu`-fältet (fallback till Name)
+2. **Description** — med markdown-stöd
+3. **Bullets** — med gröna checkmarks
+4. **Artikelkort** — vertikala eller horisontella (styrs av Horizontal-checkbox)
+
+### Prisförfrågan
+
+Identisk funktionalitet som Product Area:
+
+- Kund-ID toggle ("Har du ett kund-ID?") högerställd bredvid subtitle
+- Pris/Summa/Total-kolumner vid kundpris-laddning
+- "Lägg till i förfrågan"-knappar på artikelkorten
+- "+ Lägg till artikel" sökfunktion
+- Cascading varianter i formulärrader
+- GDPR-checkbox
+- Webhook till Make.com (samma endpoint)
+
+### Dark mode vs Light mode
+
+| Egenskap | Dark (`mode="dark"`) | Light (`mode="light"`) |
+|----------|---------------------|----------------------|
+| Bakgrund | `#0A1F3B` | `#FFFFFF` |
+| Text | `#FFFFFF` | `#11325D` |
+| Kort-bg | `rgba(255,255,255,0.06)` | `#FFFFFF` |
+| Kort-border | `rgba(255,255,255,0.08)` | `#E5E7EB` |
+| Sidomeny text | `rgba(255,255,255,0.85)` | `#374151` |
+| Variant-select bg | `rgba(255,255,255,0.08)` | `#F3F4F6` |
+| Bild-bakgrund | `#FFFFFF` (alltid) | `#FFFFFF` |
+
+Formulärsektionen har alltid ljus bakgrund (`#F8F9FA`) oavsett mode.
+
+### Kompatibilitet med Product Area
+
+Båda plugins kan vara aktiverade samtidigt. Skydd:
+
+- Alla konstanter: `if (!defined(...)) define(...)`
+- Alla delade funktioner: `if (!function_exists(...)) { function ... }`
+- AJAX-handlers (`wexoe_pa_request_submit`, `wexoe_pa_customer_lookup`): `add_action` sitter inuti `function_exists`-guarden — registreras bara en gång
+- Shortcode-namn är unika: `wexoe_product_area` vs `wexoe_order`
+- Cache-nycklar är separata: `wexoe_pa_*` vs `wexoe_op_*`
+
+### Tekniska detaljer
+
+- **1417 rader PHP** — HTML, CSS, JS allt i en fil
+- **CSS-variabler** genereras dynamiskt baserat på `$is_dark` boolean
+- **Full-bleed wrapper** med `width: 100vw; margin-left: calc(-50vw + 50%)`
+- **Content container** max 1270px centrerad
+- **Request-formulär** max 1000px centrerad
+
+### Felsökning
+
+**Sajten kraschar vid aktivering:**
+- Kontrollera att `wexoe-product-area` är version 2.1.3+ (med `defined()`/`function_exists()` guards)
+- Äldre versioner av product-area har nakna `define()` som krockar
+
+**Inga produkter visas:**
+- Kör med `debug="true" nocache="true"`
+- Kontrollera att Product Areas har `Side menu = TRUE`
+- Kontrollera att Products har `Visa = TRUE`
+
+**Formulärsubmit misslyckas:**
+- Kontrollera att Make.com-webhookens URL är aktiv
+- Kolla browser console för AJAX-fel
 
 ---
 
@@ -750,6 +1097,28 @@ Alla plugins anpassar sig automatiskt.
 
 ## Versionshistorik
 
+### Wexoe Product Area
+| Version | Datum | Ändringar |
+|---------|-------|-----------|
+| 2.1.3 | 2026-03-10 | function_exists/defined guards för alla delade funktioner och konstanter |
+| 2.1.2 | 2026-03-10 | Summa-kolumn centrerad i formulärtabellen |
+| 2.1.1 | 2026-03-10 | Kompaktare tabell, nowrap varianter, borttagna decimaler på radnivå |
+| 2.1.0 | 2026-03-10 | Fast min-width orderknapp, dold number-spinner |
+| 2.0.0 | 2026-03-10 | Kundprislista-system med Customers-tabell, AJAX-lookup, priskolumner |
+| 1.6.0 | 2026-03-10 | Horisontella artikelkort (Horizontal-checkbox), NPI badge "NYHET" |
+| 1.5.5 | 2026-03-10 | GDPR checkbox högerflyttad |
+| 1.5.4 | — | Variant-artnr utanför variant-wrap, artikelmid-wrapper |
+| 1.4.0 | — | Request-formulär med AJAX, webhook, GDPR |
+| 1.3.0 | — | Variantsystem med cascading filter |
+| 1.2.0 | — | Artikelkort redesign |
+| 1.1.0 | — | Sidomenyn implementation |
+| 1.0.0 | — | Initial release |
+
+### Wexoe Order Page
+| Version | Datum | Ändringar |
+|---------|-------|-----------|
+| 1.0.0 | 2026-03-10 | Initial release — tvånivå sidomeny, dark/light mode, kundpriser |
+
 ### Wexoe Product Nav
 | Version | Datum | Ändringar |
 |---------|-------|-----------|
@@ -836,8 +1205,12 @@ plugins/
 │   └── wexoe-team-switch.php
 ├── wexoe-team-cabinet/
 │   └── wexoe-team-cabinet.php
-└── wexoe-contact-form/
-    └── wexoe-contact-form.php
+├── wexoe-contact-form/
+│   └── wexoe-contact-form.php
+├── wexoe-product-area/
+│   └── wexoe-product-area.php
+└── wexoe-order-page/
+    └── wexoe-order-page.php
 ```
 
 ---
@@ -852,3 +1225,4 @@ Vid problem, kontrollera:
 4. Kör med `debug="true"` om tillgängligt
 5. Kolla browser console för JavaScript-fel
 6. Inspektera element för CSS-konflikter
+7. **Product Area + Order Page:** Se till att Product Area är version 2.1.3+ om båda är aktiva
