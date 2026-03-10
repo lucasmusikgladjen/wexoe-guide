@@ -45,20 +45,12 @@ Wexoe använder WordPress med Enfold-temat. Enfolds CSS är extremt aggressiv oc
 }
 ```
 
-## Vid total isolering - använd Shadow DOM
+## För total isolering - bygg eget plugin
 
-```html
-<div id="my-widget"></div>
-<script>
-const shadow = document.getElementById('my-widget').attachShadow({mode: 'open'});
-shadow.innerHTML = `
-  <style>/* Helt isolerad CSS här */</style>
-  <div>Innehåll</div>
-`;
-</script>
-```
+
 
 ## Var läggs koden?
 - **CSS:** Enfold → Quick CSS eller WordPress Customizer → Ytterligare CSS
 - **JavaScript:** Enfold → Theme Options → Footer scripts
 - **HTML:** Avia Page Builder → Raw HTML element
+- **Plugin** Tilläggshanteraren → Ladda upp plugin som zipfil med folder som innehåller php, css, js
